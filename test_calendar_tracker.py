@@ -12,6 +12,33 @@ from calendar_tracker import CalendarTracker, run_menu
 
 
 class CalendarTests(unittest.TestCase):
+    def test_edit_keeps_identifier_and_persists(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "events.json"
+            tracker = CalendarTracker(path)
+            first = tracker.add_event("Before", "2026-11-01 09:00")
+            updated = tracker.edit_event(first.id, " After ", "2026-11-03 14:00")
+            self.assertEqual((updated.id, updated.title, updated.starts_at), (1, "After", "2026-11-03 14:00"))
+            self.assertEqual(CalendarTracker(path).list_events(), [updated])
+            self.assertEqual(tracker.add_event("Next", "2026-11-04 09:00").id, 2)
+
+    def test_invalid_edit_keeps_original_event(self):
+        tracker = CalendarTracker()
+        event = tracker.add_event("Keep", "2026-11-01 09:00")
+        with self.assertRaises(ValueError):
+            tracker.edit_event(event.id, "", "2026-11-03 09:00")
+        with self.assertRaises(ValueError):
+            tracker.edit_event(99, "Missing", "2026-11-03 09:00")
+        self.assertEqual(tracker.list_events(), [event])
+
+    def test_edit_menu_changes_event(self):
+        tracker = CalendarTracker()
+        tracker.add_event("Before", "2026-11-01 09:00")
+        answers = ["4", "1", "After", "2026-11-02 10:00", "0"]
+        with patch("builtins.input", side_effect=answers), redirect_stdout(io.StringIO()):
+            run_menu(tracker)
+        self.assertEqual(tracker.list_events()[0].title, "After")
+
     def test_storage_survives_restart_and_deletion(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "events.json"

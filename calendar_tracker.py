@@ -105,6 +105,14 @@ class CalendarTracker:
         self._commit({key: event for key, event in self._events.items() if key != event_id}, self._next_id)
         return removed
 
+    def edit_event(self, event_id: int, title: str, starts_at: str) -> Event:
+        if event_id not in self._events:
+            raise ValueError(f"No event has ID {event_id}.")
+        title, starts_at = validated_details(title, starts_at)
+        event = Event(event_id, title, starts_at)
+        self._commit({**self._events, event_id: event}, self._next_id)
+        return event
+
 
 def show_events(events: list[Event]) -> None:
     if not events:
@@ -115,7 +123,7 @@ def show_events(events: list[Event]) -> None:
 
 def run_menu(tracker: CalendarTracker) -> None:
     while True:
-        print("\nCalendar Tracker\n1. Add event\n2. List events\n3. Delete event\n0. Quit")
+        print("\nCalendar Tracker\n1. Add event\n2. List events\n3. Delete event\n4. Edit event\n0. Quit")
         try:
             choice = input("Choose an option: ").strip()
             if choice == "0":
@@ -130,6 +138,12 @@ def run_menu(tracker: CalendarTracker) -> None:
             elif choice == "3":
                 removed = tracker.delete_event(int(input("Event ID: ")))
                 print(f"Deleted {removed.title}.")
+            elif choice == "4":
+                event_id = int(input("Event ID: "))
+                title = input("Replacement title: ")
+                starts_at = input("Replacement date and time (YYYY-MM-DD HH:MM): ")
+                event = tracker.edit_event(event_id, title, starts_at)
+                print(f"Updated event {event.id}.")
             else:
                 print("Choose one of the listed options.")
         except (ValueError, OSError) as exc:
