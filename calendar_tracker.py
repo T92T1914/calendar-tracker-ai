@@ -1,6 +1,7 @@
 """A small calendar application using local dates and times without time zones."""
 
 import argparse
+import csv
 import json
 import os
 import tempfile
@@ -119,6 +120,29 @@ class CalendarTracker:
             raise ValueError("Enter at least one character to search event titles.")
         return [event for event in self.list_events() if query in event.title.casefold()]
 
+    def export_csv(self, destination: Path) -> int:
+        """Export a new file without overwriting storage or existing documents."""
+        destination = Path(destination)
+        if self._storage_path is not None and destination.resolve() == self._storage_path.resolve():
+            raise ValueError("The export path must differ from the calendar JSON file.")
+        events = self.list_events()
+        # Exclusive creation also rejects a symlink to an existing file.
+        output = destination.open("x", encoding="utf-8-sig", newline="")
+        try:
+            with output:
+                writer = csv.writer(output)
+                writer.writerow(["id", "title", "starts_at"])
+                for event in events:
+                    title = event.title
+                    # Treat titles as text when opened in a spreadsheet.
+                    if title.lstrip().startswith(("=", "+", "-", "@", "\t", "\r", "\n")):
+                        title = "'" + title
+                    writer.writerow([event.id, title, event.starts_at])
+        except OSError:
+            destination.unlink(missing_ok=True)
+            raise
+        return len(events)
+
 
 def show_events(events: list[Event]) -> None:
     if not events:
@@ -130,7 +154,7 @@ def show_events(events: list[Event]) -> None:
 def run_menu(tracker: CalendarTracker) -> None:
     while True:
         print("\nCalendar Tracker\n1. Add event\n2. List events\n3. Delete event"
-              "\n4. Edit event\n5. Search event titles\n0. Quit")
+              "\n4. Edit event\n5. Search event titles\n6. Export CSV\n0. Quit")
         try:
             choice = input("Choose an option: ").strip()
             if choice == "0":
@@ -153,6 +177,10 @@ def run_menu(tracker: CalendarTracker) -> None:
                 print(f"Updated event {event.id}.")
             elif choice == "5":
                 show_events(tracker.search_events(input("Title contains: ")))
+            elif choice == "6":
+                destination = Path(input("New CSV file (default: events.csv): ").strip() or "events.csv")
+                count = tracker.export_csv(destination)
+                print(f"Exported {count} event(s) to {destination}.")
             else:
                 print("Choose one of the listed options.")
         except (ValueError, OSError) as exc:
