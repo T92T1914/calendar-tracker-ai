@@ -4,6 +4,8 @@ A small Python calendar application for a CSCI498 version control lab. Version 1
 lets users add, list, and delete events through a text menu. Version 2 adds JSON
 storage so events remain available when the program restarts. Version 3 adds
 editing of an existing event's title and date without changing its identifier.
+Version 4 adds case-insensitive title search. Results are sorted by date and
+identifier, like the full event list.
 
 ## Run
 
@@ -38,6 +40,7 @@ Tests use synthetic events and check validation, ordering, deletion, and the men
 | v1 | Add, list, and delete events in memory |
 | v2 | Save and load events in JSON |
 | v3 | Edit an existing event by its stable identifier |
+| v4 | Search event titles without case sensitivity |
 
 The baseline and planned enhancements use AI assistance. Generated code is
 reviewed and tested as each feature is added. The repository records the actual
