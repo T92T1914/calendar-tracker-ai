@@ -12,6 +12,33 @@ from calendar_tracker import CalendarTracker, run_menu
 
 
 class CalendarTests(unittest.TestCase):
+    def test_search_is_case_insensitive_and_ordered(self):
+        tracker = CalendarTracker()
+        later = tracker.add_event("Study CSCI498", "2026-11-03 18:00")
+        earlier = tracker.add_event("CSCI498 lab", "2026-11-01 18:00")
+        tracker.add_event("Other class", "2026-11-02 18:00")
+        self.assertEqual(tracker.search_events(" csci498 "), [earlier, later])
+
+    def test_search_handles_unicode_and_no_match(self):
+        tracker = CalendarTracker()
+        event = tracker.add_event("Résumé review", "2026-11-01 09:00")
+        self.assertEqual(tracker.search_events("RÉSUMÉ"), [event])
+        self.assertEqual(tracker.search_events("Missing"), [])
+
+    def test_empty_search_is_rejected(self):
+        with self.assertRaises(ValueError):
+            CalendarTracker().search_events("  ")
+
+    def test_search_menu_displays_only_matches(self):
+        tracker = CalendarTracker()
+        tracker.add_event("Match me", "2026-11-01 09:00")
+        tracker.add_event("Unrelated", "2026-11-02 09:00")
+        output = io.StringIO()
+        with patch("builtins.input", side_effect=["5", "MATCH", "0"]), redirect_stdout(output):
+            run_menu(tracker)
+        self.assertIn("Match me", output.getvalue())
+        self.assertNotIn("Unrelated", output.getvalue())
+
     def test_edit_keeps_identifier_and_persists(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "events.json"
