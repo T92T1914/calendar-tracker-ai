@@ -1,7 +1,12 @@
 """A small calendar application using local dates and times without time zones."""
 
-from dataclasses import dataclass
+import argparse
+import json
+import os
+import tempfile
+from dataclasses import asdict, dataclass
 from datetime import datetime
+from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -27,15 +32,66 @@ def validated_details(title: str, starts_at: str) -> tuple[str, str]:
 class CalendarTracker:
     """Own event identifiers and reject invalid updates before changing state."""
 
-    def __init__(self) -> None:
+    def __init__(self, storage_path: Path | None = None) -> None:
         self._events: dict[int, Event] = {}
         self._next_id = 1
+        self._storage_path = Path(storage_path) if storage_path is not None else None
+        if self._storage_path is not None and self._storage_path.exists():
+            self._load()
+
+    def _load(self) -> None:
+        """Reject malformed storage rather than opening an empty replacement calendar."""
+        try:
+            with self._storage_path.open(encoding="utf-8") as source:
+                data = json.load(source)
+            if not isinstance(data, dict) or data.get("schema_version") != 1:
+                raise ValueError("Unsupported calendar format.")
+            rows = data["events"]
+            next_id = data["next_id"]
+            if not isinstance(rows, list) or type(next_id) is not int or next_id < 1:
+                raise ValueError("Invalid calendar data.")
+            events = {}
+            for row in rows:
+                if not isinstance(row, dict) or set(row) != {"id", "title", "starts_at"}:
+                    raise ValueError("Invalid event record.")
+                event_id = row["id"]
+                if type(event_id) is not int or event_id < 1 or event_id in events:
+                    raise ValueError("Event identifiers must be positive and unique.")
+                if not isinstance(row["title"], str) or not isinstance(row["starts_at"], str):
+                    raise ValueError("Event titles and dates must be text.")
+                title, starts_at = validated_details(row["title"], row["starts_at"])
+                events[event_id] = Event(event_id, title, starts_at)
+            if next_id <= max(events, default=0):
+                raise ValueError("The next identifier would reuse an existing event ID.")
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(f"Cannot load {self._storage_path}: {exc}") from exc
+        self._events, self._next_id = events, next_id
+
+    def _commit(self, events: dict[int, Event], next_id: int) -> None:
+        """Write replacement storage before making a change visible in memory."""
+        if self._storage_path is not None:
+            parent = self._storage_path.parent
+            data = {"schema_version": 1, "next_id": next_id,
+                    "events": [asdict(event) for event in events.values()]}
+            temp_path = None
+            try:
+                with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=parent,
+                                                 suffix=".tmp", delete=False) as destination:
+                    temp_path = Path(destination.name)
+                    json.dump(data, destination, indent=2, ensure_ascii=False)
+                    destination.write("\n")
+                    destination.flush()
+                    os.fsync(destination.fileno())
+                os.replace(temp_path, self._storage_path)
+            finally:
+                if temp_path is not None:
+                    temp_path.unlink(missing_ok=True)
+        self._events, self._next_id = events, next_id
 
     def add_event(self, title: str, starts_at: str) -> Event:
         title, starts_at = validated_details(title, starts_at)
         event = Event(self._next_id, title, starts_at)
-        self._events[event.id] = event
-        self._next_id += 1
+        self._commit({**self._events, event.id: event}, self._next_id + 1)
         return event
 
     def list_events(self) -> list[Event]:
@@ -43,9 +99,11 @@ class CalendarTracker:
 
     def delete_event(self, event_id: int) -> Event:
         try:
-            return self._events.pop(event_id)
+            removed = self._events[event_id]
         except KeyError as exc:
             raise ValueError(f"No event has ID {event_id}.") from exc
+        self._commit({key: event for key, event in self._events.items() if key != event_id}, self._next_id)
+        return removed
 
 
 def show_events(events: list[Event]) -> None:
@@ -78,9 +136,16 @@ def run_menu(tracker: CalendarTracker) -> None:
             print(f"Error: {exc}")
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--data", type=Path, default=Path("events.json"),
+                        help="JSON calendar file (default: events.json)")
+    args = parser.parse_args(argv)
     try:
-        run_menu(CalendarTracker())
+        run_menu(CalendarTracker(args.data))
+    except (ValueError, OSError) as exc:
+        print(f"Cannot open calendar: {exc}")
+        return 1
     except (EOFError, KeyboardInterrupt):
         print("\nCalendar closed.")
     return 0
