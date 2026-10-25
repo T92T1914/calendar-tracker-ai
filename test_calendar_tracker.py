@@ -1,6 +1,7 @@
 """Behavior checks for the calendar application. No real calendar data is used."""
 
 import io
+import csv
 import json
 import tempfile
 import unittest
@@ -12,6 +13,70 @@ from calendar_tracker import CalendarTracker, run_menu
 
 
 class CalendarTests(unittest.TestCase):
+    def test_csv_export_quotes_text_and_keeps_date_order(self):
+        tracker = CalendarTracker()
+        tracker.add_event('Résumé, "review"', "2026-11-02 10:00")
+        tracker.add_event("Earlier", "2026-11-01 09:00")
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "events.csv"
+            self.assertEqual(tracker.export_csv(path), 2)
+            with path.open(encoding="utf-8-sig", newline="") as source:
+                rows = list(csv.reader(source))
+            self.assertEqual(rows, [["id", "title", "starts_at"],
+                                    ["2", "Earlier", "2026-11-01 09:00"],
+                                    ["1", 'Résumé, "review"', "2026-11-02 10:00"]])
+
+    def test_csv_export_protects_spreadsheet_formula_titles(self):
+        tracker = CalendarTracker()
+        for title in ["=SUM(1,2)", "+123", "-123", "@SUM(A1:A2)"]:
+            tracker.add_event(title, "2026-11-01 09:00")
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "safe.csv"
+            tracker.export_csv(path)
+            with path.open(encoding="utf-8-sig", newline="") as source:
+                rows = list(csv.DictReader(source))
+            self.assertTrue(all(row["title"].startswith("'") for row in rows))
+            self.assertEqual(tracker.list_events()[0].title, "=SUM(1,2)")
+
+    def test_csv_export_refuses_to_overwrite_calendar_or_other_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "events.json"
+            tracker = CalendarTracker(path)
+            tracker.add_event("Keep", "2026-11-01 09:00")
+            original = path.read_bytes()
+            with self.assertRaises(ValueError):
+                tracker.export_csv(path)
+            self.assertEqual(path.read_bytes(), original)
+            existing = Path(directory) / "existing.csv"
+            existing.write_text("Keep this")
+            with self.assertRaises(FileExistsError):
+                tracker.export_csv(existing)
+            self.assertEqual(existing.read_text(), "Keep this")
+
+    def test_csv_export_cannot_take_unused_calendar_storage_path(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "new_calendar.json"
+            tracker = CalendarTracker(path)
+            with self.assertRaises(ValueError):
+                tracker.export_csv(path.parent / "." / path.name)
+            self.assertFalse(path.exists())
+            self.assertEqual(CalendarTracker(path).list_events(), [])
+
+    def test_empty_calendar_exports_header(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "empty.csv"
+            self.assertEqual(CalendarTracker().export_csv(path), 0)
+            self.assertEqual(path.read_text(encoding="utf-8-sig"), "id,title,starts_at\n")
+
+    def test_csv_export_menu_creates_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "menu.csv"
+            output = io.StringIO()
+            with patch("builtins.input", side_effect=["6", str(path), "0"]), redirect_stdout(output):
+                run_menu(CalendarTracker())
+            self.assertTrue(path.is_file())
+            self.assertIn("Exported 0 event(s)", output.getvalue())
+
     def test_search_is_case_insensitive_and_ordered(self):
         tracker = CalendarTracker()
         later = tracker.add_event("Study CSCI498", "2026-11-03 18:00")
