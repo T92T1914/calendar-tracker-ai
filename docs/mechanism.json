@@ -1,0 +1,45 @@
+{
+  "id": "calendar-mechanism-20261026",
+  "basis_revision": "8a42a32aa73dcdc9582773c960da5b43297dd3ea",
+  "title": "A local event, kept inspectable",
+  "subtitle": "A text-menu program, not an AI service.",
+  "footer": "Local wall times. One writer per file.",
+  "output_prefix": "site/mechanism-obscur",
+  "adapter": {
+    "source": "presentation/tokens.json",
+    "roles": {
+      "canvas": "#090909",
+      "panel": "#151515",
+      "text": "#f4f4f4",
+      "muted": "#bcbcbc",
+      "line": "#858585"
+    }
+  },
+  "source_paths": [
+    "calendar_tracker.py",
+    "test_calendar_tracker.py"
+  ],
+  "panels": [
+    {
+      "title": "Validate input",
+      "lines": [
+        "Lab review",
+        "2026-11-01 09:00"
+      ]
+    },
+    {
+      "title": "Save local JSON",
+      "lines": [
+        "schema_version: 1",
+        "events + next_id"
+      ]
+    },
+    {
+      "title": "Inspect + export",
+      "lines": [
+        "List, edit and search",
+        "Export a new CSV"
+      ]
+    }
+  ]
+}

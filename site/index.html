@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" data-theme="Obscur">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="A small local Python calendar for a version-control lab, explained through validation, JSON persistence and CSV export.">
+  <title>Calendar Tracker | Local events and inspectable files</title>
+  <script src="appearance.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to the explanation</a>
+  <header>
+    <a href="https://github.com/T92T1914/T92T1914">T's portfolio</a>
+    <fieldset><legend>Page appearance</legend>
+      <button type="button" data-appearance="Obscur" aria-pressed="true">Obscur</button>
+      <button type="button" data-appearance="Clair" aria-pressed="false">Clair</button>
+      <button type="button" data-appearance="Auto" aria-pressed="false">Auto</button>
+    </fieldset>
+    <p id="appearance-status" role="status">Showing Obscur</p>
+  </header>
+  <main id="main">
+    <h1>A calendar you can inspect.</h1>
+    <p class="lead">Calendar Tracker is a small Python text-menu application for a CSCI498 version-control lab. Add, list, edit, delete and search local events, then inspect their JSON storage or export a new CSV file.</p>
+    <p>This page explains the local program. It does not run the calendar in your browser, connect to an online calendar or provide an AI service. The repository records five versions and discloses AI assistance.</p>
+    <nav aria-label="Project routes"><a href="#example">Inspect one event</a><a href="#run">Run locally</a><a href="#limits">Read the limits</a><a href="https://github.com/T92T1914/calendar-tracker-ai">Source and README</a></nav>
+    <section aria-labelledby="mechanism-heading">
+      <h2 id="mechanism-heading">Validate, save, then inspect</h2>
+      <figure>
+        <a href="mechanism-obscur-wide.svg"><picture>
+          <source media="(min-width: 700px)" srcset="mechanism-obscur-wide.png">
+          <img src="mechanism-obscur-narrow.png" width="960" height="1210" alt="Conceptual local calendar route: validate the synthetic Lab review event at 2026-11-01 09:00, save events and the next identifier in schema-1 JSON, then list, edit, search or export a new CSV file. Times have no timezone and each data file has one writer.">
+        </picture></a>
+        <figcaption>A conceptual example from the public implementation, not an application screenshot or a new execution. Open the graphic for the full-size SVG.</figcaption>
+      </figure>
+      <p>A title must contain text, and the date must be real and zero-padded. A valid change is written to a temporary file before replacing the JSON calendar. Only then does the in-memory state change. A failed write leaves the previous in-memory state available.</p>
+    </section>
+    <section id="example" aria-labelledby="example-heading">
+      <h2 id="example-heading">One synthetic event, two inspectable files</h2>
+      <p>Start with an empty calendar and add <strong>Lab review</strong> at <strong>2026-11-01 09:00</strong>. This authored example follows schema 1 and the program's first identifier. The date is a local wall time, with no timezone conversion.</p>
+      <h3>Calendar JSON</h3>
+      <pre tabindex="0"><code>{
+  "schema_version": 1,
+  "next_id": 2,
+  "events": [
+    {"id": 1, "title": "Lab review", "starts_at": "2026-11-01 09:00"}
+  ]
+}</code></pre>
+      <h3>CSV export</h3>
+      <pre tabindex="0"><code>id,title,starts_at
+1,Lab review,2026-11-01 09:00</code></pre>
+      <p>The actual exporter writes a UTF-8 byte-order mark for spreadsheet compatibility and refuses an existing destination. Formula-leading titles receive a leading apostrophe in the CSV while stored titles stay unchanged. The JSON and CSV above are explanatory text, not downloadable personal data.</p>
+      <p><a href="https://github.com/T92T1914/calendar-tracker-ai/blob/main/calendar_tracker.py">Read validation, persistence and export</a> or <a href="https://github.com/T92T1914/calendar-tracker-ai/blob/main/test_calendar_tracker.py">inspect the temporary-file tests</a>.</p>
+    </section>
+    <section id="run" aria-labelledby="run-heading">
+      <h2 id="run-heading">Run the local program</h2>
+      <p>Use Python 3.11 or later. The application needs no third-party packages. Clone or download the <a href="https://github.com/T92T1914/calendar-tracker-ai">public source</a> and run these commands in that checkout.</p>
+      <pre tabindex="0"><code>python calendar_tracker.py --data my_calendar.json
+python -m unittest -v</code></pre>
+      <p>The menu writes local files. Choose a new CSV destination and keep one running instance per JSON file. Tests use temporary files and synthetic events. The <a href="https://github.com/T92T1914/calendar-tracker-ai/actions">workflow results</a> and <a href="https://github.com/T92T1914/calendar-tracker-ai#version-history">annotated version history</a> retain their own revisions and results.</p>
+    </section>
+    <section id="limits" aria-labelledby="limits-heading">
+      <h2 id="limits-heading">A small coursework boundary</h2>
+      <p>This is a local, single-process calendar. There are no accounts, synchronization, reminders, online calendar integration or timezone handling. Corrupt storage stops startup rather than being replaced with an empty file. Atomic file replacement is not a production backup or multi-process coordination system.</p>
+      <p>The five versions cover in-memory events, JSON persistence, editing, search and CSV export. The diagram explains those choices. It does not claim deployment of the local application, production use or model capability.</p>
+      <p><a href="https://github.com/T92T1914/calendar-tracker-ai/blob/main/docs/mechanism.md">Graphic source, rendering and typography limits</a> · <a href="build-identity.json">Static-page build identity</a> · <a href="https://github.com/T92T1914/T92T1914">Return to the portfolio</a></p>
+    </section>
+    <noscript><p>The explanation, examples, source links and Obscur graphics work without JavaScript. Appearance controls need JavaScript.</p></noscript>
+  </main>
+  <footer>Static explanation of Calendar Tracker. Optional local Inter with system fallbacks. This page downloads no font files and uses no analytics or application backend.</footer>
+</body>
+</html>
