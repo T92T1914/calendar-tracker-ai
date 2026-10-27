@@ -4,6 +4,16 @@ A small Python calendar application for a CSCI498 version control lab. Use a tex
 menu to add, list, delete, edit, and search events. Changes are saved to JSON, and
 events can be exported to CSV for inspection in a spreadsheet.
 
+<a href="https://t92t1914.github.io/calendar-tracker-ai/"><picture>
+  <source media="(min-width: 900px)" srcset="site/mechanism-obscur-wide.png">
+  <img src="site/mechanism-obscur-narrow.png" width="960" alt="Conceptual route: validate a title and local date/time, save schema-1 JSON with events and the next identifier, then list, edit, search or export a new CSV. This is a local single-writer program without timezone handling.">
+</picture></a>
+
+The conceptual diagram explains the local program rather than showing a browser
+calendar or AI service. [Explore the project](https://t92t1914.github.io/calendar-tracker-ai/)
+for a synthetic JSON/CSV example, setup and limits. The [figure source](docs/mechanism.md)
+records its meaning and optional authoring route.
+
 ## Run
 
 Requires Python 3.11 or later. No third-party packages are needed.

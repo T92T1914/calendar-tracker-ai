@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "kind": "conceptual mechanism",
+  "basis_revision": "8a42a32aa73dcdc9582773c960da5b43297dd3ea",
+  "application_or_scientific_execution": false,
+  "adapter": {
+    "source": "presentation/tokens.json",
+    "roles": {
+      "canvas": "#090909",
+      "panel": "#151515",
+      "text": "#f4f4f4",
+      "muted": "#bcbcbc",
+      "line": "#858585"
+    }
+  },
+  "inputs_sha256_lf": {
+    "calendar_tracker.py": "18b9607b27a63ce984c84bff87b675a3879cb1fd1d6265bff4c2deab561b4c78",
+    "docs/mechanism.json": "bac2d6cb3e40470d6e9a0ab9b836b761b7f4906c88465b4c841ee240e18b4959",
+    "presentation/tokens.json": "728a3c8529ed55244a954a2676a259fc89657921de721e0e2660ce7b67c16c6d",
+    "test_calendar_tracker.py": "8ac0fd5fc98e4977261542d5ad07e3d8c0f71ab876bf48da48d8505bd7421918",
+    "tools/render_mechanism.py": "84d16a9a70c0bc7c842c42c2d37a06d5734c26eb8eacb84eb6576a1ece578f20"
+  },
+  "fonts": {
+    "Regular": {
+      "filename": "Inter-Regular.ttf",
+      "weight": 400,
+      "sha256": "40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82"
+    },
+    "SemiBold": {
+      "filename": "Inter-SemiBold.ttf",
+      "weight": 600,
+      "sha256": "78a843fade9d4612a5567302fb595b56976eb5fcebf4fea5a5912d638bafcde3"
+    },
+    "Bold": {
+      "filename": "Inter-Bold.ttf",
+      "weight": 700,
+      "sha256": "288316099b1e0a47a4716d159098005eef7c0066921f34e3200393dbdb01947f"
+    }
+  },
+  "renderer": {
+    "matplotlib": "3.11.1",
+    "fonttools": "4.63.0",
+    "backend": "Agg"
+  },
+  "layouts": {
+    "wide": {
+      "width": 1800,
+      "height": 800,
+      "labels_within_canvas": 12,
+      "card_height": 252.60611979166663,
+      "rendered_body_lines": [
+        [
+          "Lab review",
+          "2026-11-01 09:00"
+        ],
+        [
+          "schema_version: 1",
+          "events + next_id"
+        ],
+        [
+          "List, edit and search",
+          "Export a new CSV"
+        ]
+      ],
+      "height_rule": "actual font bounds, measured-width wrapping and fixed padding/gaps",
+      "minimum_font_points": 30.0,
+      "minimum_font_pixels_at_100dpi": 41.666666666666664
+    },
+    "narrow": {
+      "width": 960,
+      "height": 1210,
+      "labels_within_canvas": 12,
+      "card_height": 266.05013020833326,
+      "rendered_body_lines": [
+        [
+          "Lab review",
+          "2026-11-01 09:00"
+        ],
+        [
+          "schema_version: 1",
+          "events + next_id"
+        ],
+        [
+          "List, edit and search",
+          "Export a new CSV"
+        ]
+      ],
+      "height_rule": "actual font bounds, measured-width wrapping and fixed padding/gaps",
+      "minimum_font_points": 33.0,
+      "minimum_font_pixels_at_100dpi": 45.833333333333336
+    }
+  },
+  "outputs_sha256": {
+    "site/mechanism-obscur-wide.png": "aa8758e4a32aaa407bbe13e4b882d80af5929d5ab77cef156f54d8e6234336ee",
+    "site/mechanism-obscur-wide.svg": "b09b028ac7437be649bebc7d6699335735b9744a458c14f6412caa6d37d4d14c",
+    "site/mechanism-obscur-narrow.png": "d75f36173e027f51f6179d61b126b609a8e68d77dd47a61aec51e40b0aa65c0e",
+    "site/mechanism-obscur-narrow.svg": "e5f3c86bb0465ae69942ba5fd5ef6ba6e54b9344766b2f9c86de8d6276af4849"
+  }
+}

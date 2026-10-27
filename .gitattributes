@@ -1,0 +1,3 @@
+# Only the new conceptual record and SVGs need exact LF checkout bytes.
+docs/mechanism-rendering.json text eol=lf
+site/mechanism-obscur-*.svg text eol=lf
