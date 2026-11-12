@@ -6,7 +6,7 @@ events can be exported to CSV for inspection in a spreadsheet.
 
 <a href="https://t92t1914.github.io/calendar-tracker-ai/"><picture>
   <source media="(min-width: 900px)" srcset="site/mechanism-obscur-wide.png">
-  <img src="site/mechanism-obscur-narrow.png" width="960" alt="Conceptual route: validate a title and local date/time, save schema-1 JSON with events and the next identifier, then list, edit, search or export a new CSV. This is a local single-writer program without timezone handling.">
+  <img src="site/mechanism-obscur-narrow.png" width="960" alt="Conceptual route: validate a title and local date/time, save schema 1 JSON with events and the next identifier, then list, edit, search or export a new CSV. This is a local program for one writer without timezone handling.">
 </picture></a>
 
 The conceptual diagram explains the local program rather than showing a browser
@@ -16,7 +16,7 @@ records its meaning and optional authoring route.
 
 ## Run
 
-Requires Python 3.11 or later. No third-party packages are needed.
+Requires Python 3.11 or later. No packages from outside the standard library are needed.
 
 ```console
 python calendar_tracker.py
@@ -26,7 +26,7 @@ The app saves changes to `events.json` in the current directory. Use
 `python calendar_tracker.py --data my_calendar.json` to choose another file.
 Corrupt input stops startup without overwriting the original. Writes replace the
 file only after the new data has been written successfully. This is a local,
-single-process calendar. Do not open the same data file in multiple instances.
+calendar for one process. Do not open the same data file in multiple instances.
 
 Menu option 6 exports `id`, `title`, and `starts_at` columns in calendar order.
 Choose a new destination filename. Existing files are never overwritten. CSV
